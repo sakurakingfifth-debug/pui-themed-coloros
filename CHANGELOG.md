@@ -1,6 +1,11 @@
-## 17.0.1.222
+## 17.0.1.223
 
-**测试模块在线更新，请勿下载**
+**CN:**
 
-- 仅用于验证在线更新链路
-- 版本号 `17.0.1.222`（versionCode 1701222）
+1、模块添加在线更新入口。
+2、OPPO AI/OnePlus AI 首页添加美化图标覆盖。
+
+**EN:**
+
+1、Add online update push option to the module
+2、Add PUI Theme icon to the homepage icon of OPPO AI/OnePlus AI
