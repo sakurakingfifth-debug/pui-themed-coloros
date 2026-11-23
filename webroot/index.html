@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>PUI Theme · 模块状态</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#101113;--card:#191b1e;--line:#2a2d31;--txt:#e6e8ea;--dim:#9aa0a6;--dim2:#71767b;
+  --ok:#5dcaa5;--warn:#ef9f27;--bad:#f09595;--info:#85b7eb;
+  --okbg:rgba(29,158,117,.12);--warnbg:rgba(239,159,39,.12);--badbg:rgba(240,149,149,.12);
+  --bar:rgba(16,17,19,.58);
+}
+@media (prefers-color-scheme: light){
+  :root{color-scheme:light;--bg:#f4f5f6;--card:#fff;--line:#e4e6e9;--txt:#1a1c1e;--dim:#5f6368;--dim2:#80868b;
+  --ok:#0f6e56;--warn:#98590a;--bad:#a32d2d;--info:#185fa5;
+  --okbg:rgba(15,110,86,.08);--warnbg:rgba(152,89,10,.08);--badbg:rgba(163,45,45,.08);
+  --bar:rgba(244,245,246,.62);}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt)}
+body{font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC",sans-serif;padding:0 14px 32px}
+body{padding:0 max(14px,env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.wrap{max-width:600px;margin:0 auto}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.topbar{position:sticky;top:0;z-index:20;margin:0 -14px;padding:15px 14px 10px;transition:padding .22s ease}
+.topbar{margin:0 calc(-1 * max(14px,env(safe-area-inset-right))) 0 calc(-1 * max(14px,env(safe-area-inset-left)));padding:calc(15px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left))}
+.topbar.scrolled{padding-bottom:8px}
+.topbar .veil{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;display:none}
+.topbar.scrolled .veil{display:block}
+.topbar .veil i{position:absolute;left:0;right:0;top:0;display:block;height:100%}
+.topbar .veil i:nth-child(1){-webkit-backdrop-filter:blur(5px) saturate(1.12);backdrop-filter:blur(5px) saturate(1.12)}
+.topbar .veil i:nth-child(2){-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.topbar .veil i:nth-child(3){-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
+.topbar .veil i:nth-child(4){-webkit-backdrop-filter:blur(0.5px);backdrop-filter:blur(0.5px)}
+.topbar>header,.topbar>.chips{position:relative;z-index:1}
+.topbar .chips{margin-top:10px;max-height:96px;overflow:hidden;opacity:1;transition:max-height .26s ease,opacity .16s ease,margin-top .26s ease}
+.topbar.scrolled .chips{max-height:0;opacity:0;margin-top:0}
+h1{font-size:18px;font-weight:600;margin:0;letter-spacing:-.2px}
+.sub{font-size:12px;color:var(--dim);margin:3px 0 0}
+#refresh{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--line);background:var(--card);border-radius:12px;color:var(--txt);display:grid;place-items:center;padding:0}
+#refresh svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#refresh.spin svg{animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;color:var(--dim);background:var(--card)}
+.banner{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.5;padding:10px 12px;border-radius:12px;margin-top:14px;border:1px solid var(--line);color:var(--dim);background:var(--card)}
+.banner[hidden]{display:none}
+.banner b{color:var(--txt);font-weight:500}
+.verdict{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;margin:14px 0 12px;border:1px solid var(--line)}
+.verdict .vt{font-size:13px;font-weight:500;margin:0}
+.verdict .vd{font-size:12px;color:var(--dim);margin:3px 0 0;line-height:1.5}
+.verdict.ok{background:var(--okbg);border-color:rgba(93,202,165,.35)}
+.verdict.warn{background:var(--warnbg);border-color:rgba(239,159,39,.35)}
+.verdict.bad{background:var(--badbg);border-color:rgba(240,149,149,.35)}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px;margin-top:6px;background:var(--dim2)}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.dot.na{background:transparent;border:1px solid var(--warn)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+.card .k{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:6px}
+.card .v{font-size:19px;font-weight:600;margin-top:5px;letter-spacing:-.3px}
+.card .s{font-size:11px;color:var(--dim2);margin-top:2px}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:4px;margin:18px 0 12px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--dim);font-size:13px;padding:8px 0;border-radius:10px;font-family:inherit}
+.tabs button.on{background:var(--line);color:var(--txt);font-weight:500}
+.panel{display:none}.panel.on{display:block}
+.rows{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:2px 13px}
+.row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.row:last-child{border-bottom:0}
+.row .l{color:var(--dim);flex:0 0 auto}
+.row .r{text-align:right;word-break:break-all;font-variant-numeric:tabular-nums}
+.row .r.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+details[open]{border-color:var(--dim2)}
+summary{list-style:none;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+summary .t{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;min-width:0}
+summary::after{content:"";width:6px;height:6px;flex:0 0 6px;border-right:1.4px solid var(--dim2);border-bottom:1.4px solid var(--dim2);transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+details[open] summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+summary .c{font-size:11px;color:var(--dim);flex:0 0 auto;font-variant-numeric:tabular-nums}
+summary .c.bad{color:var(--warn)}
+.olist{padding:2px 13px 10px}
+.oitem{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11.5px;color:var(--dim);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.oitem .dot{width:5px;height:5px;flex:0 0 5px;margin-top:0}
+.oitem .p{color:var(--dim2);margin-left:auto;font-size:10.5px}
+.oitem.off{opacity:.55}
+.search{width:100%;padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:13px;font-family:inherit;margin-bottom:10px;outline:none}
+.search:focus{border-color:var(--dim2)}
+pre.log{background:#0b0c0e;color:#ced3d8;font:11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px 13px;border-radius:12px;border:1px solid var(--line);overflow:auto;max-height:56vh;white-space:pre-wrap;word-break:break-all;margin:0}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:13px;font-family:inherit}
+.btn:active{opacity:.7}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:rgba(0,0,0,.86);color:#fff;font-size:12px;padding:9px 16px;border-radius:999px;opacity:0;transition:.22s;pointer-events:none;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.empty{font-size:12px;color:var(--dim2);padding:16px 2px;text-align:center}
+.note{display:flex;gap:10px;padding:12px 13px;margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.note[hidden]{display:none}
+.note .ni{flex:0 0 16px;width:16px;height:16px;margin-top:1px;border-radius:50%;border:1px solid var(--info);color:var(--info);display:grid;place-items:center;font-size:11px;font-style:italic;line-height:1}
+.note p{margin:0;font-size:12px;line-height:1.7;color:var(--dim)}
+.note p+p{margin-top:5px}
+.note .k{color:var(--txt);font-weight:500}
+.note .tag{white-space:nowrap}
+.langbtn{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;font-family:inherit;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;padding:12px 12px calc(12px + env(safe-area-inset-bottom));background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .2s ease}
+.sheet.show{opacity:1;pointer-events:auto}
+.sheetbox{width:100%;max-width:600px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px 8px 10px;max-height:72vh;overflow:auto;transform:translateY(22px) scale(.985);transition:transform .26s cubic-bezier(.22,.85,.3,1)}
+.sheet.show .sheetbox{transform:none}
+.sheettitle{font-size:12px;color:var(--dim);margin:2px 12px 8px}
+.lopt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:12px;border:0;background:transparent;color:var(--txt);font-size:14px;font-family:inherit;border-radius:11px;text-align:left}
+.lopt:active{background:var(--line)}
+.lopt.on{color:var(--info);font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar" id="topbar">
+    <div class="veil" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <header>
+      <div style="min-width:0">
+        <h1 id="modname">PUI Theme</h1>
+        <p class="sub" id="modver">正在读取模块信息…</p>
+      </div>
+      <button id="refresh" aria-label="刷新">
+        <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>
+      </button>
+    </header>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="banner" class="banner" hidden></div>
+  <div id="verdict" class="verdict ok"><span class="dot ok"></span><div><p class="vt">读取中</p><p class="vd">正在获取模块运行状态</p></div></div>
+  <div class="note" id="note">
+    <span class="ni">i</span>
+    <div>
+      <p id="note1"></p>
+      <p id="note2"></p>
+    </div>
+  </div>
+  <div class="grid" id="cards"></div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="ov" class="on">概览</button>
+    <button data-tab="list">叠加层</button>
+    <button data-tab="log">日志</button>
+  </nav>
+
+  <section class="panel on" id="p-ov">
+    <div class="rows" id="detail"></div>
+    <div class="rows" style="margin-bottom:12px">
+      <div class="row"><span class="l" id="langLabel"></span><span class="r" style="flex:0 0 auto"><button id="langBtn" class="langbtn"></button></span></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="copy">复制诊断信息</button>
+      <button class="btn" id="reload">重新读取</button>
+    </div>
+  </section>
+
+  <section class="panel" id="p-list">
+    <input class="search" id="q" placeholder="搜索包名或应用" autocomplete="off" spellcheck="false">
+    <div id="groups"></div>
+  </section>
+
+  <section class="panel" id="p-log">
+    <pre class="log" id="logbox">（暂无日志）</pre>
+    <div class="actions">
+      <button class="btn" id="copylog">复制日志</button>
+    </div>
+  </section>
+</div>
+<div class="sheet" id="langSheet"><div class="sheetbox"><p class="sheettitle" id="langTitle"></p><div id="langList"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="i18n.js"></script>
+<script>
+const MOD_ID = "PUIThemeCustomized";
+const MOD = "/data/adb/modules/" + MOD_ID;
+const SRC = MOD + "/my_product/decouping_wallpaper/common/wallpaper_group/00_ColorOS15/ColorOS1506.mp4";
+const DST = "/my_product/decouping_wallpaper/common/wallpaper_group/00_ColorOS15/ColorOS1506.mp4";
+const MAP = {"com.google.android.googlequicksearchboxthemeicon.add":["com.google.android.googlequicksearchbox",2000],"com.google.android.calculator.PUIThemeCalculatorIcon":["com.google.android.calculator",1000],"com.github.kr328.clash.PUIThemeClashForAndroidIcon":["com.github.kr328.clash",800],"com.github.metacubex.clash.meta.PUIThemeClashMetaForAndroidIcon":["com.github.metacubex.clash.meta",800],"com.google.android.deskclock.PUIThemeClockIcon":["com.google.android.deskclock",1000],"com.coolapk.market.PUIThemeCoolApkMarket":["com.coolapk.market",2000],"com.google.android.keep.PUIThemeKeepNotesIcon":["com.google.android.keep",1000],"com.google.android.apps.nbu.files.PUIThemeNBUFilesIcon":["com.google.android.apps.nbu.files",1000],"com.google.android.apps.pixel.nowplaying.PUIThemeNowPlayingIcon":["com.google.android.apps.pixel.nowplaying",2000],"com.google.android.apps.recorder.PUIThemeRecorderIcon":["com.google.android.apps.recorder",1000],"com.twitter.android.PUIThemeTwitterIcon":["com.twitter.android",2000],"com.android.settings.PUIThemedSettingsInfoString":["com.android.settings",1500],"com.oplus.safecenter.PuiThemEncryptionIcon":["com.oplus.safecenter",2000],"com.android.systemui.PuiThemeAODLightFantasy":["com.android.systemui",500],"com.coloros.accessibilityassistant.PuiThemeAccessibilityVoiceIcon":["com.coloros.accessibilityassistant",2000],"com.oplus.account.PuiThemeAccountIcon":["com.oplus.account",2000],"com.android.systemui.PuiThemeAdbStatusIcon":["com.android.systemui",2000],"com.android.systemui.PuiThemeAffordanceIcon":["com.android.systemui",4000],"com.coloros.assistantscreen.PuiThemeAssistantScreenSettingsIcon":["com.coloros.assistantscreen",2000],"com.android.systemui.PuiThemeBatteryHorizontal":["com.android.systemui",5000],"com.oplus.battery.PuiThemeBatteryModeIcon":["com.oplus.battery",5000],"com.oplus.battery.PuiThemeBatterySaveQSIcon":["com.oplus.battery",2000],"com.android.systemui.PuiThemeBatteryVerticalIcon":["com.android.systemui",1000],"com.android.systemui.PuiThemeBluetoothBatteryIcon141New":["com.android.systemui",8000],"com.android.systemui.PuiThemeBrightQSIcon":["com.android.systemui",2000],"com.android.settings.PuiThemeBtnNext":["com.android.settings",2000],"com.oplus.ocar.PuiThemeCarSettingsIcon":["com.oplus.ocar",2000],"com.coloros.childrenspace.PuiThemeChildrenSpaceQSIcon":["com.coloros.childrenspace",2000],"com.oplus.devicesettings.PuiThemeCoolingFanIcon":["com.oplus.devicesettings",5000],"com.oplus.eyeprotect.PuiThemeEyeprotectIcon":["com.oplus.eyeprotect",2000],"com.android.systemui.PuiThemeFlag":["com.android.systemui",1000],"com.coloros.floatassistant.PuiThemeFloatAssistantIcon":["com.coloros.floatassistant",2000],"com.coloros.gamesettings.PuiThemeGameSettingsIcon":["com.coloros.gamesettings",2000],"com.google.android.apps.bard.PuiThemeGeminiShortcutIcon":["com.google.android.apps.bard",2000],"com.android.systemui.PuiThemeHDSignalIcon":["com.android.systemui",800],"com.oplus.consumerIRApp.PuiThemeIRAppIcon":["com.oplus.consumerIRApp",2000],"com.android.systemui.PuiThemeLauncherAllAPPSContainerBackgroundColor":["com.android.launcher",2000],"com.android.launcher.PuiThemeLauncherBackgroundIcon":["com.android.launcher",800],"com.android.launcher.PuiThemeLauncherButtonIcon":["com.android.launcher",1000],"com.android.launcher.PuiThemeLauncherTaskButtonIcon":["com.android.launcher",5000],"com.android.launcher.PuiThemeLauncherTogglelBarIcon":["com.android.launcher",800],"com.microsoft.appmanager.PuiThemeLinkWindowsIcon":["com.microsoft.appmanager",2000],"com.oplus.linker.PuiThemeLinkerSettingsIcon":["com.oplus.linker",2000],"com.coloros.digitalwellbeing.PuiThemeMinorIconQSIcon":["com.coloros.digitalwellbeing",2000],"com.oplus.pscanvas.PuiThemeMultiWindowIcon":["com.oplus.pscanvas",5000],"com.android.systemui.PuiThemeNotificationClearIcon":["com.android.systemui",5000],"com.android.launcher.PuiThemeOPLauncherCardIcon":["com.android.launcher",2000],"com.oplus.battery.PuiThemeOPlusBatteryQSIcon":["com.oplus.battery",2000],"com.coloros.oshare.PuiThemeOShareIcon":["com.coloros.oshare",2000],"com.android.settings.PuiThemeOTACard":["com.android.settings",4000],"com.oplus.riderMode.PuiThemeOutDoorTaskBarIcon":["com.oplus.riderMode",2000],"com.android.permissioncontroller.PuiThemePermissionControllerIcon":["com.android.permissioncontroller",2000],"com.oplus.systemui.plugins.PuiThemePluginColor":["com.oplus.systemui.plugins",2000],"com.android.systemui.PuiThemePuiNoLogIcon":["com.android.systemui",500],"com.android.systemui.PuiThemeQSIconDimen":["com.android.systemui",1000],"com.android.systemui.PuiThemeQStitleRadius":["com.android.systemui",1100],"com.android.systemui.PuiThemeQuickPanelEditIcon":["com.android.systemui",800],"com.android.systemui.PuiThemeQuickPanelIcon":["com.android.systemui",2000],"com.android.systemui.PuiThemeQuickPanelSearchIcon":["com.android.systemui",2000],"com.oplus.riderMode.PuiThemeRiderModeIcon":["com.oplus.riderMode",5000],"com.oplus.screenrecorder.PuiThemeScreenRecorderIcon":["com.oplus.screenrecorder",2000],"com.oplus.securitypermission.PuiThemeSecurityPermissionIcon":["com.oplus.securitypermission",8000],"com.android.settings.PuiThemeSettingIcon":["com.android.settings",2000],"com.android.settings.PuiThemeSettingsAppDetailsIcons":["com.android.settings",4000],"com.android.settings.PuiThemeSettingsNoLine":["com.android.settings",4000],"com.android.settings.PuiThemeSettingsShortcutIcon":["com.android.settings",2000],"com.coloros.sharescreen.PuiThemeShareScreenIcon":["com.coloros.sharescreen",2000],"com.oplus.gesture.PuiThemeShortcutButtonIcon":["com.oplus.gesture",1000],"com.android.settings.PuiThemeShowToggleAirplane":["com.android.settings",1000],"com.android.systemui.PuiThemeShutdownInterfaceIcon":["com.android.systemui",800],"com.android.systemui.PuiThemeSignalIcon":["com.android.systemui",1500],"com.android.systemui.PuiThemeSignalLOGO":["com.android.systemui",2500],"com.coloros.smartsidebar.PuiThemeSmartSideBarDarkIcon":["com.coloros.smartsidebar",4000],"com.coloros.smartsidebar.PuiThemeSmartSideBarIcon":["com.coloros.smartsidebar",800],"com.coloros.phonemanager.PuiThemeSpeakerCleanQSIcon":["com.coloros.phonemanager",2000],"com.android.systemui.PuiThemeStatusIcon":["com.android.systemui",800],"com.android.settings.PuiThemeStatusSettingsIcon":["com.android.settings",2000],"com.android.systemui.PuiThemeSysbarIconCOS":["com.android.systemui",4000],"com.android.launcher.PuiThemeSysbarIconOOS":["com.android.launcher",4000],"com.android.systemui.PuiThemeSystemUIPluginColor":["com.android.systemui",2000],"com.android.systemui.PuiThemeSystemUISignalBool":["com.android.systemui",2000],"com.android.launcher.PuiThemeTaskIcon":["com.android.launcher",5000],"com.android.systemui.PuiThemeVibrationQSIcon":["com.android.systemui",5000],"com.coloros.phonemanager.PuiThemeVoiceCallQSIcon":["com.coloros.phonemanager",2000],"com.android.systemui.PuiThemeVolumePanelInfo":["com.android.systemui",2000],"com.oplus.wallpapers.PuiThemeWallpapersIcon":["com.oplus.wallpapers",800],"com.oplus.wallpapers.PuiThemeWallpapersPickIcon":["com.oplus.wallpapers",5000],"com.oplus.screenshot.PuiThemecomScreenshotIcon":["com.oplus.screenshot",2000],"com.android.systemui.PuiThemeoneHandedBackgroud":["com.android.systemui",500],"com.android.settings.PuiThemerActionButtonSettingIcon":["com.android.settings",2000]};
+
+const BRIDGE = window.ksu || window.apatch || window.kernelsu || null;
+try {
+  if (BRIDGE && typeof BRIDGE.enableEdgeToEdge === "function") BRIDGE.enableEdgeToEdge(true);
+} catch (e) {}
+const DEMO = /[?&]demo=1/.test(location.search) || (!BRIDGE && /^(localhost|127\.0\.0\.1)$/.test(location.hostname));
+const $ = (s) => document.querySelector(s);
+const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
+
+function toast(msg) {
+  if (BRIDGE && typeof BRIDGE.toast === "function") { try { BRIDGE.toast(msg); return; } catch (e) {} }
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1600);
+}
+
+function norm(r) {
+  if (!r) return null;
+  if (typeof r === "string") {
+    try { const j = JSON.parse(r); return { out: j.stdout || "", err: j.stderr || "" }; }
+    catch (e) { return { out: r, err: "" }; }
+  }
+  if (typeof r === "object") return { out: r.stdout || r.out || "", err: r.stderr || r.err || "" };
+  return null;
+}
+
+function sh(cmd) {
+  return new Promise((resolve, reject) => {
+    if (!BRIDGE || typeof BRIDGE.exec !== "function") return reject(new Error("NO_BRIDGE"));
+    const name = "__ksu_cb_" + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+    let done = false;
+    function finish(fn, v) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { delete window[name]; } catch (e) {}
+      fn(v);
+    }
+    const timer = setTimeout(() => finish(reject, new Error("bridge timeout")), 15000);
+    window[name] = (errno, stdout, stderr) => finish(resolve, { out: stdout || "", err: stderr || "", code: errno });
+    let ret;
+    try { ret = BRIDGE.exec(cmd, JSON.stringify({ cwd: "/" }), name); }
+    catch (e) { return finish(reject, e); }
+    const n = norm(ret);
+    if (n) finish(resolve, n);
+  });
+}
+
+const SCRIPT = [
+  'M=' + MOD,
+  'S=' + SRC,
+  'D=' + DST,
+  'echo @@PROP',
+  'cat "$M/module.prop" 2>/dev/null',
+  'echo @@FLAGS',
+  'for f in disable remove update; do [ -e "$M/$f" ] && echo "$f=1" || echo "$f=0"; done',
+  'echo @@DEV',
+  'echo "model=$(getprop ro.product.model)"',
+  'echo "android=$(getprop ro.build.version.release)"',
+  'echo "sdk=$(getprop ro.build.version.sdk)"',
+  'echo "rom=$(getprop ro.build.display.id)"',
+  'echo "kernel=$(uname -r)"',
+  'echo "selinux=$(getenforce 2>/dev/null)"',
+  'echo "magisk=$([ -d /data/adb/magisk ] && echo 1 || echo 0)"',
+  'echo "ksu=$([ -d /data/adb/ksu ] && echo 1 || echo 0)"',
+  'echo "apatch=$([ -d /data/adb/ap ] && echo 1 || echo 0)"',
+  'echo @@COUNT',
+  'echo "module_apk=$(ls "$M/system/product/overlay" 2>/dev/null | grep -c \\.apk$)"',
+  'VP=/product/overlay; [ -d "$VP" ] || VP=/system/product/overlay',
+  'vn=0; for f in "$M/system/product/overlay/"*.apk; do [ -f "$VP/${f##*/}" ] && vn=$((vn+1)); done',
+  'echo "visible_apk=$vn"',
+  'echo "visible_dir=$VP"',
+  'echo @@OVL',
+  'OV=$(cmd overlay list 2>/dev/null)',
+  '[ -n "$OV" ] || OV=$(cmd overlay list --user 0 2>/dev/null)',
+  'echo "$OV"',
+  'echo @@PKGS',
+  'pm list packages 2>/dev/null | sed "s/^package://"',
+  'echo @@WP',
+  'echo "src=$(stat -c %d:%i "$S" 2>/dev/null)"',
+  'echo "dst=$(stat -c %d:%i "$D" 2>/dev/null)"',
+  'echo "srcsize=$(stat -c %s "$S" 2>/dev/null)"',
+  'echo "srclabel=$(ls -lZ "$S" 2>/dev/null | awk "{print \\$5}")"',
+  'echo "dstexist=$([ -f "$D" ] && echo 1 || echo 0)"',
+  'echo "binds=$(mount 2>/dev/null | grep -c ColorOS1506)"',
+  'echo @@LOG',
+  'tail -n 14 /data/local/tmp/pui_theme.log 2>/dev/null',
+  'echo @@END'
+].join("\n");
+
+function demoRaw() {
+  const pkgs = Object.keys(MAP);
+  const ovl = pkgs.map((p, i) => (i >= pkgs.length - 12 ? "--- " : (i >= pkgs.length - 14 ? "[ ] " : "[x] ")) + p);
+  const targets = [...new Set(Object.keys(MAP).map((p) => MAP[p][0]))];
+  const installed = targets.filter((t, i) => i % 6 !== 0);
+  return [
+    "@@PROP", "id=PUIThemeCustomized", "name=PUI Theme For ColorOS 17",
+    "version=17.0.1.215", "versionCode=1701215", "author=天伞桜&PanL",
+    "description=Customized Themed For PUI ColorOS 17.",
+    "@@FLAGS", "disable=0", "remove=0", "update=0",
+    "@@DEV", "model=PLK110", "android=17", "sdk=37", "rom=PLK110_17.0.1.201(CN01)",
+    "kernel=6.12.69-android16-6-g5fd39602326e-ab16372235-4k", "selinux=Enforcing",
+    "magisk=0", "ksu=1", "apatch=0",
+    "@@COUNT", "module_apk=90", "visible_apk=90", "visible_dir=/product/overlay",
+    "@@OVL", ...ovl,
+    "@@PKGS", ...installed,
+    "@@WP", "src=65074:91598", "dst=65074:91598", "srcsize=24463792",
+    "srclabel=u:object_r:system_file:s0", "dstexist=1", "binds=1",
+    "@@LOG", "1970-05-03 13:32:46 ---- boot ----",
+    "挂载成功: /my_product/decouping_wallpaper/common/wallpaper_group/00_ColorOS15/ColorOS1506.mp4",
+    "@@END"
+  ].join("\n");
+}
+
+function sections(raw) {
+  const o = {}; let cur = "";
+  raw.replace(/\r/g, "").split("\n").forEach((ln) => {
+    if (ln.indexOf("@@") === 0) { cur = ln.slice(2).trim(); o[cur] = []; return; }
+    if (cur) o[cur].push(ln);
+  });
+  return o;
+}
+function kv(lines) {
+  const o = {};
+  (lines || []).forEach((ln) => { const i = ln.indexOf("="); if (i > 0) o[ln.slice(0, i).trim()] = ln.slice(i + 1).trim(); });
+  return o;
+}
+
+const st = { prop: {}, flags: {}, dev: {}, count: {}, ovl: {}, wp: {}, log: "", pkgs: [] };
+
+function apply(raw) {
+  const s = sections(raw);
+  st.prop = kv(s.PROP); st.flags = kv(s.FLAGS);
+  st.dev = kv(s.DEV); st.count = kv(s.COUNT); st.wp = kv(s.WP);
+  st.ovl = {};
+  (s.OVL || []).forEach((ln) => {
+    const m = ln.match(/^\s*(?:\[([x ]|---+)\]|(---+))\s+(\S+)/);
+    if (!m) return;
+    const raw = (m[1] || m[2] || "").trim();
+    st.ovl[m[3]] = raw === "x" ? "x" : (raw === "" ? " " : "-");
+  });
+  st.log = (s.LOG || []).join("\n").trim();
+  st.pkgs = (s.PKGS || []).map((x) => x.trim()).filter(Boolean);
+}
+
+function num(v) { const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+
+function stats() {
+  const keys = Object.keys(MAP);
+  const total = keys.length;
+  const installed = new Set(st.pkgs);
+  const enabled = keys.filter((p) => st.ovl[p] === "x").length;
+  const naKeys = keys.filter((p) => st.ovl[p] === "-");
+  const offset = keys.filter((p) => st.ovl[p] === " ").length;
+  const missing = naKeys.filter((p) => installed.size && !installed.has(MAP[p][0])).length;
+  const listed = keys.filter((p) => st.ovl[p]).length;
+  const visible = num(st.count.visible_apk);
+  const inModule = num(st.count.module_apk) || total;
+  const bind = st.wp.src && st.wp.src === st.wp.dst;
+  return {
+    total, enabled, listed, visible, inModule, bind, offset,
+    unavail: naKeys.length, missing, mismatch: naKeys.length - missing, pkgsKnown: installed.size > 0,
+    unlisted: total - listed
+  };
+}
+
+function managerName() {
+  if (st.dev.ksu === "1") return "KernelSU";
+  if (st.dev.apatch === "1") return "APatch";
+  if (st.dev.magisk === "1") return "Magisk";
+  return BRIDGE ? t("mgrUnknown") : t("mgrNone");
+}
+
+function render() {
+  const s = stats();
+  const noData = !DEMO && !BRIDGE;
+  const name = st.prop.name || "PUI Theme";
+  $("#modname").textContent = name;
+  $("#modver").textContent = "v" + (st.prop.version || "—") + " · " + (st.prop.author || "—");
+  document.title = name + " · " + t("status");
+
+  const chips = [st.dev.model, st.dev.android ? "Android " + st.dev.android : "", managerName(), st.dev.selinux].filter(Boolean);
+  const chipBox = $("#chips"); chipBox.textContent = "";
+  chips.forEach((c) => chipBox.appendChild(el("span", "", c)));
+
+  const issues = [];
+  if (noData) {
+    issues.push(["warn", t("noBridgeT"), t("noBridgeB")]);
+  } else {
+    if (!st.prop.id) issues.push(["bad", t("noModT"), t("noModB", { path: MOD })]);
+    if (st.flags.disable === "1") issues.push(["warn", t("disabledT"), t("disabledB")]);
+    if (s.visible && s.visible < s.inModule) issues.push(["warn", t("partialT"), t("partialB", { v: s.visible, t: s.inModule })]);
+    if (!s.visible) issues.push(["warn", t("noOvlT"), t("noOvlB")]);
+    if (s.unavail) {
+      let d = t("unavailBAll");
+      if (s.pkgsKnown) {
+        const parts = [];
+        if (s.missing) parts.push(t("missN", { n: s.missing }));
+        if (s.mismatch) parts.push(t("mismN", { n: s.mismatch }));
+        if (parts.length) d = parts.join(" · ");
+      }
+      issues.push(["warn", t("unavailT", { n: s.unavail }), d]);
+    }
+    if (s.offset) issues.push(["warn", t("offT", { n: s.offset }), t("offB")]);
+    if (s.unlisted > 0) issues.push(["warn", t("unlistedT", { n: s.unlisted }), t("unlistedB")]);
+    if (!s.bind) issues.push(["warn", t("wallT"), t("wallB")]);
+    if (st.dev.selinux === "Permissive") issues.push(["warn", t("permT"), t("permB")]);
+  }
+
+  const v = $("#verdict");
+  v.className = "verdict " + (issues.length ? issues[0][0] : "ok");
+  v.textContent = "";
+  v.appendChild(el("span", "dot " + (issues.length ? issues[0][0] : "ok")));
+  const vd = el("div");
+  vd.appendChild(el("p", "vt", issues.length ? issues[0][1] : t("okT")));
+  vd.appendChild(el("p", "vd", issues.length ? issues[0][2] : t("okB", { n: s.enabled })));
+  v.appendChild(vd);
+
+  const cards = $("#cards"); cards.textContent = "";
+  const mk = (k, val, sub, color) => {
+    const c = el("div", "card");
+    const kk = el("div", "k"); kk.appendChild(el("span", "dot " + (color || ""))); kk.appendChild(el("span", "", k));
+    c.appendChild(kk); c.appendChild(el("div", "v", val)); c.appendChild(el("div", "s", sub));
+    return c;
+  };
+  const ovKnown = s.listed > 0;
+  const ovColor = !ovKnown ? "" : (s.enabled === s.total ? "ok" : (s.enabled ? "warn" : "bad"));
+  const ovSub = ovKnown ? (s.unavail ? t("nInactive", { n: s.unavail }) : (s.enabled === s.total ? t("allOn") : t("someOff"))) : t("cantRead");
+  cards.appendChild(mk(t("cOvl"), ovKnown ? s.enabled + " / " + s.total : "—", ovSub, ovColor));
+  cards.appendChild(mk(t("cWall"), noData ? "—" : (s.bind ? t("mounted") : t("notMounted")), "ColorOS1506.mp4", noData ? "" : (s.bind ? "ok" : "bad")));
+  cards.appendChild(mk(t("cMod"), !st.prop.id ? "—" : (st.flags.disable === "1" ? t("mOff") : t("mOn")), st.prop.version ? "v" + st.prop.version : "—", st.flags.disable === "1" ? "warn" : (st.prop.id ? "ok" : "")));
+  cards.appendChild(mk(t("cEnv"), managerName(), "SELinux " + (st.dev.selinux || "—"), noData ? "warn" : "ok"));
+
+  const d = $("#detail"); d.textContent = "";
+  const row = (l, r, mono) => {
+    const x = el("div", "row");
+    x.appendChild(el("span", "l", l));
+    x.appendChild(el("span", "r" + (mono ? " mono" : ""), r == null || r === "" ? "—" : String(r)));
+    d.appendChild(x);
+  };
+  row(t("rId"), st.prop.id || MOD_ID, true);
+  row(t("rPath"), MOD, true);
+  row(t("rApkMod"), t("vCount", { n: s.inModule }));
+  row(t("rApkVfs"), s.visible ? t("vCount", { n: s.visible }) : t("vNotDet"));
+  row(t("rEnabled"), s.listed ? s.enabled + " / " + s.total : t("vNoList"));
+  row(t("rInactive"), s.listed ? (s.unavail ? (s.pkgsKnown ? t("vUnavail", { n: s.unavail, m: s.missing, k: s.mismatch }) : t("vCount", { n: s.unavail })) : t("vNone")) : "—");
+  row(t("rWallSrc"), st.wp.srcsize ? (Math.round(num(st.wp.srcsize) / 1048576 * 10) / 10) + " MB" : t("vMissing"));
+  row(t("rWallCtx"), st.wp.srclabel || "—", true);
+  row(t("rWallFile"), st.wp.dstexist === "1" ? t("vExist") : t("vNoExist"));
+  row(t("rBind"), s.bind ? t("vBindOk") : t("vBindNo"));
+  row(t("rKernel"), st.dev.kernel || "—", true);
+  row(t("rRom"), st.dev.rom || "—", true);
+
+  renderOverlays(s);
+  $("#logbox").textContent = st.log || t("logEmptyTry");
+}
+
+let query = "";
+function renderOverlays(s) {
+  const groups = {};
+  Object.keys(MAP).forEach((p) => {
+    const tgt = MAP[p][0];
+    (groups[tgt] = groups[tgt] || []).push({ p, state: st.ovl[p] || "", prio: MAP[p][1] });
+  });
+  const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+  const box = $("#groups"); box.textContent = "";
+
+  const q = query.trim().toLowerCase();
+  let shown = 0;
+  keys.forEach((tgt) => {
+    const items = groups[tgt].filter((i) => !q || i.p.toLowerCase().indexOf(q) >= 0 || tgt.toLowerCase().indexOf(q) >= 0);
+    if (!items.length) return;
+    shown += items.length;
+    const on = items.filter((i) => i.state === "x").length;
+    const det = document.createElement("details");
+    if (q) det.open = true;
+    const sm = document.createElement("summary");
+    sm.appendChild(el("span", "t", tgt));
+    sm.appendChild(el("span", "c" + (on < items.length ? " bad" : ""), on + "/" + items.length));
+    det.appendChild(sm);
+    const list = el("div", "olist");
+    items.sort((a, b) => a.p.localeCompare(b.p)).forEach((i) => {
+      const cls = i.state === "x" ? "ok" : (i.state === "-" ? "na" : "off");
+      const it = el("div", "oitem" + (i.state === "x" ? "" : " off"));
+      let label = "P" + i.prio;
+      if (i.state === " ") label = t("lOff");
+      else if (i.state === "-") label = (s.pkgsKnown && st.pkgs.indexOf(tgt) < 0) ? t("lMissing") : t("lMismatch");
+      it.appendChild(el("span", "dot " + cls));
+      it.appendChild(el("span", "", i.p.split(".").pop()));
+      it.appendChild(el("span", "p", label));
+      list.appendChild(it);
+    });
+    det.appendChild(list);
+    box.appendChild(det);
+  });
+  if (!shown) box.appendChild(el("div", "empty", q ? t("emptySearch") : t("emptyList")));
+}
+
+function diagnostics() {
+  const s = stats();
+  return [
+    (st.prop.name || "PUI Theme") + " " + (st.prop.version || ""),
+    t("dId") + ": " + (st.prop.id || MOD_ID),
+    t("dDev") + ": " + (st.dev.model || "?") + " / Android " + (st.dev.android || "?") + " (" + (st.dev.rom || "?") + ")",
+    t("dKernel") + ": " + (st.dev.kernel || "?"),
+    t("dManager") + ": " + managerName() + " / SELinux " + (st.dev.selinux || "?"),
+    t("dOverlay") + ": " + t("dOverlayVal", { a: s.enabled, b: s.total, c: s.unavail, d: s.visible, e: s.inModule }),
+    t("dWall") + ": " + t("dWallVal", { state: s.bind ? t("mounted") : t("notMounted"), label: st.wp.srclabel || "no label", size: st.wp.srcsize || "?" }),
+    t("dLog"),
+    st.log || t("logEmpty")
+  ].join("\n");
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast(t("copied")); return; } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast(t("copied")); } catch (e2) { toast(t("copyFail")); }
+  document.body.removeChild(ta);
+}
+
+async function load() {
+  $("#refresh").classList.add("spin");
+  $("#banner").hidden = true;
+  try {
+    if (DEMO) { apply(demoRaw()); }
+    else if (!BRIDGE) {
+      const b = $("#banner");
+      b.hidden = false;
+      b.innerHTML = "";
+      b.appendChild(el("span", "dot warn"));
+      const bw = el("div");
+      bw.appendChild(el("b", "", t("noBridgeTitle")));
+      bw.appendChild(document.createElement("br"));
+      bw.appendChild(document.createTextNode(t("noBridgeBody")));
+      b.appendChild(bw);
+      apply("@@END");
+    } else {
+      const r = await sh(SCRIPT);
+      apply(r.out || "");
+      if (!st.prop.id) {
+        const b = $("#banner");
+        b.hidden = false;
+        b.innerHTML = "";
+        b.appendChild(el("span", "dot bad"));
+        const bw2 = el("div");
+        bw2.appendChild(el("b", "", t("failTitle")));
+        bw2.appendChild(document.createElement("br"));
+        bw2.appendChild(document.createTextNode(t("failBody")));
+        b.appendChild(bw2);
+      }
+    }
+  } catch (e) {
+    const b = $("#banner");
+    b.hidden = false;
+    b.textContent = t("failTitle") + ": " + (e && e.message ? e.message : e);
+  }
+  render();
+  $("#refresh").classList.remove("spin");
+}
+
+$("#refresh").onclick = load;
+$("#reload").onclick = load;
+$("#q").oninput = (e) => { query = e.target.value; renderOverlays(stats()); };
+$("#copy").onclick = () => copyText(diagnostics());
+$("#copylog").onclick = () => copyText(st.log || t("logEmpty"));
+function setTab(k) {
+  [...$("#tabs").children].forEach((x) => x.classList.toggle("on", x.dataset.tab === k));
+  ["ov", "list", "log"].forEach((n) => $("#p-" + n).classList.toggle("on", n === k));
+}
+$("#tabs").onclick = (e) => {
+  const b = e.target.closest("button[data-tab]"); if (!b) return;
+  setTab(b.dataset.tab);
+};
+const tabParam = (location.search.match(/[?&]tab=(ov|list|log)\b/) || [])[1];
+if (tabParam) setTab(tabParam);
+
+const bar = $("#topbar");
+const veil = bar.querySelector(".veil");
+const bands = veil ? veil.children : [];
+const TAIL = 20;
+
+function sizeVeil() {
+  if (!veil) return;
+  const h = Math.round(bar.getBoundingClientRect().height);
+  if (!h) return;
+  veil.style.height = (h + TAIL) + "px";
+  veil.style.background = "linear-gradient(to bottom,var(--bar) 0,var(--bar) " + h + "px,transparent 100%)";
+  if (bands.length === 4) {
+    bands[0].style.height = Math.max(0, h - 10) + "px";
+    bands[1].style.height = h + "px";
+    bands[2].style.height = (h + 10) + "px";
+    bands[3].style.height = (h + TAIL) + "px";
+  }
+}
+
+let barRaf = 0;
+function syncBar() {
+  barRaf = 0;
+  const sc = window.scrollY > 6;
+  bar.classList.toggle("scrolled", sc);
+  sizeVeil();
+  if (sc) { setTimeout(sizeVeil, 140); setTimeout(sizeVeil, 320); }
+}
+window.addEventListener("scroll", () => {
+  if (!barRaf) barRaf = requestAnimationFrame(syncBar);
+}, { passive: true });
+window.addEventListener("resize", sizeVeil);
+syncBar();
+
+function fillNote(id, str) {
+  const node = $("#" + id);
+  if (!node) return;
+  node.textContent = "";
+  const m = str.match(/^(.*?)［([^］]+)］([\s\S]*)$/);
+  if (!m) { node.textContent = str; return; }
+  node.appendChild(document.createTextNode(m[1]));
+  const tag = el("span", "tag");
+  tag.appendChild(document.createTextNode("［"));
+  tag.appendChild(el("span", "k", m[2]));
+  tag.appendChild(document.createTextNode("］"));
+  node.appendChild(tag);
+  node.appendChild(document.createTextNode(m[3]));
+}
+
+function applyStatic() {
+  const keys = ["tabOv", "tabList", "tabLog"];
+  document.querySelectorAll("#tabs button").forEach((b, i) => { b.textContent = t(keys[i]); });
+  $("#q").placeholder = t("search");
+  $("#copy").textContent = t("copyDiag");
+  $("#reload").textContent = t("reload");
+  $("#copylog").textContent = t("copyLog");
+  $("#refresh").setAttribute("aria-label", t("refresh"));
+  $("#langLabel").textContent = t("langLabel");
+  fillNote("note1", t("note1"));
+  fillNote("note2", t("note2"));
+}
+
+function buildLangSel() {
+  const cur = i18nMode();
+  const found = PUI_LANGS.filter((x) => x[0] === cur)[0];
+  $("#langBtn").textContent = cur === "auto" ? t("langAuto") : (found ? found[1] : cur);
+  $("#langTitle").textContent = t("langLabel");
+  const list = $("#langList");
+  list.textContent = "";
+  PUI_LANGS.forEach(([v, label]) => {
+    const b = document.createElement("button");
+    b.className = "lopt" + (v === cur ? " on" : "");
+    b.appendChild(el("span", "", v === "auto" ? t("langAuto") : label));
+    if (v === cur) b.appendChild(el("span", "", "\u2713"));
+    b.onclick = () => {
+      setLang(v);
+      closeSheet();
+      applyStatic();
+      buildLangSel();
+      load();
+    };
+    list.appendChild(b);
+  });
+}
+
+$("#langBtn").onclick = () => { $("#langSheet").classList.add("show"); };
+$("#langSheet").onclick = (e) => { if (e.target.id === "langSheet") closeSheet(); };
+function closeSheet() { $("#langSheet").classList.remove("show"); }
+
+const langParam = (location.search.match(/[?&]lang=([A-Za-z-]+)/) || [])[1];
+if (langParam) setLang(langParam);
+
+applyStatic();
+buildLangSel();
+load();
+</script>
+</body>
+</html>
