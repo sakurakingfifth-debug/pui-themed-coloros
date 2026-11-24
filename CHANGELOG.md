@@ -1,13 +1,13 @@
-## 17.0.1.224
+## 17.0.1.225
 
 **CN:**
 
-1、修复在线更新后未重启导致的误报：现在显示「模块已更新，重启后生效」，不再误报叠加层未挂载。
+1、修复软重启后模块从列表消失的问题：壁纸挂载源改为 `/data/adb/pui_theme`，不再占用模块目录，模块更新时不会报 EBUSY。
 
-2、壁纸挂载：管理器已挂载时脚本不再重复 bind，避免源/目标 inode 不一致的误判。
+2、新增 `uninstall.sh`，卸载时自动清理壁纸缓存与挂载点。
 
 **EN:**
 
-1、Fix a false "overlays not fully mounted" report after an online update; the WebUI now shows "reboot to apply".
+1、Fix the module disappearing from the list after a soft restart. The wallpaper is now bind-mounted from `/data/adb/pui_theme` instead of the module folder, so module updates no longer fail with EBUSY.
 
-2、Wallpaper: skip the bind when the manager already mounted the file, avoiding inode mismatch false alarms.
+2、Add `uninstall.sh` to clean up the wallpaper cache and mount point on uninstall.
