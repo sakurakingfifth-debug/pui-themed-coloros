@@ -17,6 +17,15 @@ echo "boot+$(cut -d' ' -f1 /proc/uptime)s ---- " >> "$LOG"
 chcon u:object_r:system_file:s0 "$SRC" 2>/dev/null
 chmod 0644 "$SRC"
 
+# 若管理器（Magic Mount / 元模块）已经把这个文件挂上去了，就不要重复 bind，
+# 否则会覆盖掉管理器的挂载，出现源 inode 与目标不一致的误报
+SRC_ID=$(stat -c %d:%i "$SRC" 2>/dev/null)
+DST_ID=$(stat -c %d:%i "$DST" 2>/dev/null)
+if [ -n "$SRC_ID" ] && [ "$SRC_ID" = "$DST_ID" ]; then
+    echo "已由管理器挂载，跳过 bind" >> "$LOG"
+    exit 0
+fi
+
 if mount --bind "$SRC" "$DST"; then
     echo "挂载成功: $DST" >> "$LOG"
 else

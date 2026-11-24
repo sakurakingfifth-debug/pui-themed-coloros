@@ -57,6 +57,7 @@ h1{font-size:18px;font-weight:600;margin:0;letter-spacing:-.2px}
 .verdict.bad{background:var(--badbg);border-color:rgba(240,149,149,.35)}
 .dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px;margin-top:6px;background:var(--dim2)}
 .dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.dot.info{background:var(--info)}
 .dot.na{background:transparent;border:1px solid var(--warn)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
@@ -251,6 +252,8 @@ const SCRIPT = [
   'vn=0; for f in "$M/system/product/overlay/"*.apk; do [ -f "$VP/${f##*/}" ] && vn=$((vn+1)); done',
   'echo "visible_apk=$vn"',
   'echo "visible_dir=$VP"',
+  'up=$(cut -d. -f1 /proc/uptime 2>/dev/null); now=$(date +%s); mt=$(stat -c %Y "$M" 2>/dev/null)',
+  'if [ -n "$up" ] && [ -n "$mt" ] && [ "$mt" -gt "$((now - up))" ]; then echo "pending_reboot=1"; else echo "pending_reboot=0"; fi',
   'echo @@OVL',
   'OV=$(cmd overlay list 2>/dev/null)',
   '[ -n "$OV" ] || OV=$(cmd overlay list --user 0 2>/dev/null)',
@@ -338,8 +341,9 @@ function stats() {
   const visible = num(st.count.visible_apk);
   const inModule = num(st.count.module_apk) || total;
   const bind = st.wp.src && st.wp.src === st.wp.dst;
+  const pendingReboot = st.count.pending_reboot === "1";
   return {
-    total, enabled, listed, visible, inModule, bind, offset,
+    total, enabled, listed, visible, inModule, bind, offset, pendingReboot,
     unavail: naKeys.length, missing, mismatch: naKeys.length - missing, pkgsKnown: installed.size > 0,
     unlisted: total - listed
   };
@@ -370,7 +374,8 @@ function render() {
   } else {
     if (!st.prop.id) issues.push(["bad", t("noModT"), t("noModB", { path: MOD })]);
     if (st.flags.disable === "1") issues.push(["warn", t("disabledT"), t("disabledB")]);
-    if (s.visible && s.visible < s.inModule) issues.push(["warn", t("partialT"), t("partialB", { v: s.visible, t: s.inModule })]);
+    if (s.pendingReboot) issues.push(["info", t("pendingT"), t("pendingB", { v: s.visible, t: s.inModule })]);
+    else if (s.visible && s.visible < s.inModule) issues.push(["warn", t("partialT"), t("partialB", { v: s.visible, t: s.inModule })]);
     if (!s.visible) issues.push(["warn", t("noOvlT"), t("noOvlB")]);
     if (s.unavail) {
       let d = t("unavailBAll");
@@ -384,7 +389,7 @@ function render() {
     }
     if (s.offset) issues.push(["warn", t("offT", { n: s.offset }), t("offB")]);
     if (s.unlisted > 0) issues.push(["warn", t("unlistedT", { n: s.unlisted }), t("unlistedB")]);
-    if (!s.bind) issues.push(["warn", t("wallT"), t("wallB")]);
+    if (!s.bind && !s.pendingReboot) issues.push(["warn", t("wallT"), t("wallB")]);
     if (st.dev.selinux === "Permissive") issues.push(["warn", t("permT"), t("permB")]);
   }
 
@@ -408,7 +413,7 @@ function render() {
   const ovColor = !ovKnown ? "" : (s.enabled === s.total ? "ok" : (s.enabled ? "warn" : "bad"));
   const ovSub = ovKnown ? (s.unavail ? t("nInactive", { n: s.unavail }) : (s.enabled === s.total ? t("allOn") : t("someOff"))) : t("cantRead");
   cards.appendChild(mk(t("cOvl"), ovKnown ? s.enabled + " / " + s.total : "—", ovSub, ovColor));
-  cards.appendChild(mk(t("cWall"), noData ? "—" : (s.bind ? t("mounted") : t("notMounted")), "ColorOS1506.mp4", noData ? "" : (s.bind ? "ok" : "bad")));
+  cards.appendChild(mk(t("cWall"), noData ? "—" : (s.bind ? t("mounted") : (s.pendingReboot ? t("pendingShort") : t("notMounted"))), "ColorOS1506.mp4", noData ? "" : (s.bind ? "ok" : (s.pendingReboot ? "info" : "bad"))));
   cards.appendChild(mk(t("cMod"), !st.prop.id ? "—" : (st.flags.disable === "1" ? t("mOff") : t("mOn")), st.prop.version ? "v" + st.prop.version : "—", st.flags.disable === "1" ? "warn" : (st.prop.id ? "ok" : "")));
   cards.appendChild(mk(t("cEnv"), managerName(), "SELinux " + (st.dev.selinux || "—"), noData ? "warn" : "ok"));
 

@@ -366,3 +366,50 @@ window.I18N["ja"] = {
     return s;
   };
 })();
+
+/* 追加：模块已更新、待重启的提示文案 */
+(function () {
+  const add = {
+    "zh-CN": {
+      pendingT: "模块已更新，重启后生效",
+      pendingB: "系统仍在使用更新前的叠加层（{v}/{t}），重启一次即可全部生效",
+      pendingShort: "重启后生效"
+    },
+    "zh-TW": {
+      pendingT: "模組已更新，重新開機後生效",
+      pendingB: "系統仍在使用更新前的疊加層（{v}/{t}），重新開機一次即可全部生效",
+      pendingShort: "重新開機後生效"
+    },
+    "zh-HK": {
+      pendingT: "模組已更新，重啟後生效",
+      pendingB: "系統仍在使用更新前的疊加層（{v}/{t}），重啟一次即可全部生效",
+      pendingShort: "重啟後生效"
+    },
+    "yue-CN": {
+      pendingT: "模块更新咗，重启后生效",
+      pendingB: "系统仲用紧更新前嘅叠加层（{v}/{t}），重启一次就全部生效",
+      pendingShort: "重启后生效"
+    },
+    "yue-HK": {
+      pendingT: "模組更新咗，重啟後生效",
+      pendingB: "系統仲用緊更新前嘅疊加層（{v}/{t}），重啟一次就全部生效",
+      pendingShort: "重啟後生效"
+    },
+    "en": {
+      pendingT: "Updated — reboot to apply",
+      pendingB: "The system is still using the pre-update overlays ({v}/{t}). One reboot applies all of them.",
+      pendingShort: "after reboot"
+    },
+    "ru": {
+      pendingT: "Модуль обновлён — перезагрузите",
+      pendingB: "Система всё ещё использует оверлеи до обновления ({v}/{t}). Перезагрузка применит все.",
+      pendingShort: "после перезагрузки"
+    },
+    "ja": {
+      pendingT: "更新済み — 再起動で反映",
+      pendingB: "システムは更新前のオーバーレイ（{v}/{t}）をまだ使用中です。再起動で全て反映されます。",
+      pendingShort: "再起動後に反映"
+    }
+  };
+  for (const k in add) Object.assign(window.I18N[k], add[k]);
+})();
