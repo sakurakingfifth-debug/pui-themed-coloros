@@ -1,3 +1,17 @@
+## 17.0.1.311
+
+**CN:**
+
+1、33 个叠加层添加 v2 签名，现在保持 v1+v2 签名。
+
+2、修正一部分 WebUI 多语言的文体规范。
+
+**EN:**
+
+1. Added v2 signatures to 33 overlays; they now carry both v1 and v2 signatures.
+
+2. Fixed the wording and style conventions in parts of the WebUI translations.
+
 ## 17.0.1.308
 
 **CN:**

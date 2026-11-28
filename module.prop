@@ -1,7 +1,7 @@
 id=PUIThemeCustomized
 name=PUI Theme For ColorOS 17
-version=17.0.1.308
-versionCode=1701308
+version=17.0.1.311
+versionCode=1701311
 author=天伞桜&PanL
 description=Customized Themed For PUI ColorOS 17.
 updateJson=https://raw.githubusercontent.com/sakurakingfifth-debug/pui-themed-coloros/main/update.json
